@@ -1,17 +1,10 @@
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <unordered_map>
-#include <vector>
-#include <stdexcept>
-#include <array>
-
-#include "direction.h"
-#include "meshData.h"
-#include "chunkData.h"
-#include "blockDataManager.h"
-#include "chunkUtils.h"
 #include "blockHelper.h"
-
+const std::array<Direction, 6> BlockHelper::directions = {foreward,
+                                                          right,
+                                                          backwards,
+                                                          left,
+                                                          up,
+                                                          down};
 MeshData BlockHelper::getMeshData(const ChunkData &chunk, int x, int y, int z, MeshData meshData, BlockType blockType)
 {
   if (blockType == BlockType::Air || blockType == BlockType::Nothing)

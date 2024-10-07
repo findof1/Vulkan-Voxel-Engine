@@ -66,61 +66,9 @@ struct SwapChainSupportDetails
     std::vector<VkPresentModeKHR> presentModes;
 };
 
-std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // 0
-    {{0.5f, -0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},  // 1
-    {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 2
-    {{-0.5f, 0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // 3
+std::vector<Vertex> vertices;
 
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // 4
-    {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},  // 5
-    {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 6
-    {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // 7
-
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // 8
-    {{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},  // 9
-    {{-0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 10
-    {{-0.5f, -0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // 11
-
-    {{0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // 12
-    {{0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},  // 13
-    {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 14
-    {{0.5f, -0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // 15
-
-    {{-0.5f, 0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // 16
-    {{0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},  // 17
-    {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 18
-    {{-0.5f, 0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // 19
-
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // 20
-    {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},  // 21
-    {{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 22
-    {{-0.5f, -0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}   // 23
-};
-
-std::vector<uint32_t> indices = {
-    0, 1, 2, 2, 3, 0,
-    4, 7, 6, 6, 5, 4,
-    8, 11, 10, 10, 9, 8,
-    12, 13, 14, 14, 15, 12,
-    16, 19, 18, 18, 17, 16,
-    20, 21, 22, 22, 23, 20};
-
-std::vector<Vertex> vertices2 = {
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // 4
-    {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},  // 5
-    {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 6
-    {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // 7
-};
-
-std::vector<uint32_t> indices2 = {
-    0,
-    1,
-    2,
-    2,
-    3,
-    0,
-};
+std::vector<uint32_t> indices;
 
 struct UniformBufferObject
 {
@@ -226,8 +174,6 @@ private:
         // loadModel();
         createVertexBuffer(vertices, 0);
         createIndexBuffer(indices, 0);
-        createVertexBuffer(vertices2, 1);
-        createIndexBuffer(indices2, 1);
         createUniformBuffers();
         createDescriptorPool();
         createDescriptorSets();
@@ -1852,12 +1798,60 @@ private:
     }
 };
 
+void printVec3(const glm::vec3 &vec)
+{
+    std::cout << "vec3(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
+}
+
+// Print function for a glm::vec2
+void printVec2(const glm::vec2 &vec)
+{
+    std::cout << "vec2(" << vec.x << ", " << vec.y << ")";
+}
+
+// Function to print a Vertex
+void printVertex(const Vertex &vertex)
+{
+    std::cout << "Vertex { ";
+    printVec3(vertex.pos);
+    std::cout << ", ";
+    printVec3(vertex.color);
+    std::cout << ", ";
+    printVec2(vertex.texPos);
+    std::cout << " }" << std::endl;
+}
+
+// Function to print the vertices vector
+void printVertices(const std::vector<Vertex> &vertices)
+{
+    std::cout << "Vertices:" << std::endl;
+    for (const auto &vertex : vertices)
+    {
+        printVertex(vertex);
+    }
+}
+
+// Function to print the indices vector
+void printIndices(const std::vector<uint32_t> &indices)
+{
+    std::cout << "Indices:" << std::endl;
+    for (const auto &index : indices)
+    {
+        std::cout << index << " ";
+    }
+    std::cout << std::endl;
+}
+
 int main()
 {
     Renderer app;
-
+    World world;
     try
     {
+        world.generateWorld(&vertices, &indices);
+        printVertices(vertices);
+        printIndices(indices);
+        std::cin.get();
         app.run();
     }
     catch (const std::exception &e)

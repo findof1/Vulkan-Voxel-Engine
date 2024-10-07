@@ -15,19 +15,6 @@ public:
   static std::unordered_map<BlockType, TextureData> blockTextureDataDictionary;
   BlockDataSO textureData;
 
-  BlockDataManager(const std::vector<TextureData> &textureDataList, BlockDataSO &&textureData) : textureData(std::move(textureData))
-  {
-
-    for (const auto &item : textureDataList)
-    {
-      if (blockTextureDataDictionary.find(item.blockType) == blockTextureDataDictionary.end())
-      {
-        blockTextureDataDictionary[item.blockType] = item;
-      }
-    }
-    tileSizeX = textureData.textureSizeX;
-    tileSizeY = textureData.textureSizeY;
-    textureOffset = 0.001f;
-  }
+  BlockDataManager(const std::vector<TextureData> &textureDataList, BlockDataSO &&textureData);
 };
 #endif

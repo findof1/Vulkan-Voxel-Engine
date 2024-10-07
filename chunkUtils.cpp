@@ -97,10 +97,10 @@ MeshData getChunkMeshData(const ChunkData &chunkData)
   return meshData;
 }
 
-glm::ivec3 chunkPositionFromBlockCoords(const World &world, int x, int y, int z)
+glm::ivec3 chunkPositionFromBlockCoords(World *world, int x, int y, int z)
 {
   return glm::ivec3{
-      static_cast<int>(std::floor(x / static_cast<float>(world.chunkSize)) * world.chunkSize),
-      static_cast<int>(std::floor(y / static_cast<float>(world.chunkHeight)) * world.chunkHeight),
-      static_cast<int>(std::floor(z / static_cast<float>(world.chunkSize)) * world.chunkSize)};
+      static_cast<int>(std::floor(x / static_cast<float>(world->chunkSize)) * world->chunkSize),
+      static_cast<int>(std::floor(y / static_cast<float>(world->chunkHeight)) * world->chunkHeight),
+      static_cast<int>(std::floor(z / static_cast<float>(world->chunkSize)) * world->chunkSize)};
 }

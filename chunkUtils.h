@@ -10,6 +10,9 @@
 #include "meshData.h"
 #include "blockHelper.h"
 
+class ChunkData;
+class World;
+
 glm::ivec3 getPositionFromIndex(const ChunkData &chunkData, int index);
 
 void loopThroughTheBlocks(const ChunkData &chunkData, std::function<void(int, int, int)> actionToPerform);
@@ -32,6 +35,6 @@ glm::ivec3 getBlockInChunkCoordinates(const ChunkData &chunkData, int x, int y, 
 
 MeshData getChunkMeshData(const ChunkData &chunkData);
 
-glm::ivec3 chunkPositionFromBlockCoords(const World &world, int x, int y, int z);
+glm::ivec3 chunkPositionFromBlockCoords(World *world, int x, int y, int z);
 
 #endif

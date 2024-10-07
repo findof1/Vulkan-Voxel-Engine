@@ -12,6 +12,8 @@
 #include "blockDataManager.h"
 #include "chunkUtils.h"
 
+class ChunkData;
+
 class BlockHelper
 {
 private:
