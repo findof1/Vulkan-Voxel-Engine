@@ -9,31 +9,34 @@ ChunkRenderer::ChunkRenderer() : chunkData(new ChunkData(nullptr, glm::vec3(0), 
 {
 }
 
-ChunkRenderer::ChunkRenderer(ChunkData &data) : chunkData(&data)
+ChunkRenderer::ChunkRenderer(ChunkData *data) : chunkData(data)
 {
 }
 
-ChunkRenderer::ChunkRenderer(ChunkData &&data) : chunkData(&data)
+void ChunkRenderer::renderMesh(MeshData *meshData, std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
 {
-}
 
-void ChunkRenderer::renderMesh(MeshData meshData, std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
-{
-  vertices->reserve(meshData.vertices.size() + meshData.waterMesh->vertices.size());
-  vertices->insert(vertices->end(), meshData.vertices.begin(), meshData.vertices.end());
-  vertices->insert(vertices->end(), meshData.waterMesh->vertices.begin(), meshData.waterMesh->vertices.end());
+  int size = meshData->vertices.size() + meshData->waterMesh->vertices.size();
+  vertices->reserve(size);
 
-  indices->reserve(meshData.indices.size() + meshData.waterMesh->indices.size());
-  indices->insert(indices->end(), meshData.indices.begin(), meshData.indices.end());
-  indices->insert(indices->end(), meshData.waterMesh->indices.begin(), meshData.waterMesh->indices.end());
+  size = meshData->indices.size() + meshData->waterMesh->indices.size();
+  indices->reserve(size);
+
+  std::cin.get();
+  vertices->insert(vertices->end(), meshData->vertices.begin(), meshData->vertices.end());
+  vertices->insert(vertices->end(), meshData->waterMesh->vertices.begin(), meshData->waterMesh->vertices.end());
+
+  indices->insert(indices->end(), meshData->indices.begin(), meshData->indices.end());
+  indices->insert(indices->end(), meshData->waterMesh->indices.begin(), meshData->waterMesh->indices.end());
 }
 
 void ChunkRenderer::updateChunk(std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
 {
-  renderMesh(getChunkMeshData(*chunkData), vertices, indices);
+  MeshData mesh = getChunkMeshData(chunkData);
+  renderMesh(&mesh, vertices, indices);
 }
 
-void ChunkRenderer::updateChunk(MeshData data, std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
+void ChunkRenderer::updateChunk(MeshData *data, std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
 {
   renderMesh(data, vertices, indices);
 }

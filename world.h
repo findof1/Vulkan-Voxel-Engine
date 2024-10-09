@@ -37,9 +37,9 @@ public:
 
   void generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *indices);
 
-  void generateVoxels(ChunkData &data);
+  void generateVoxels(ChunkData *data);
 
-  BlockType getBlockFromChunkCoordinates(const ChunkData &chunkData, int x, int y, int z);
+  BlockType getBlockFromChunkCoordinates(ChunkData *chunkData, int x, int y, int z);
 };
 
 #endif

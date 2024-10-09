@@ -3,60 +3,66 @@
 #include <functional>
 #include <stdexcept>
 #include <glm/glm.hpp>
+#include <chrono>
 #include "chunkData.h"
 #include "blockType.h"
 #include "meshData.h"
 #include "blockHelper.h"
 
-glm::ivec3 getPositionFromIndex(const ChunkData &chunkData, int index)
+glm::ivec3 getPositionFromIndex(ChunkData *chunkData, int index)
 {
-  int x = index % chunkData.chunkSize;
-  int y = (index / chunkData.chunkSize) % chunkData.chunkHeight;
-  int z = index / (chunkData.chunkSize * chunkData.chunkHeight);
+  int x = index % chunkData->chunkSize;
+  int y = (index / chunkData->chunkSize) % chunkData->chunkHeight;
+  int z = index / (chunkData->chunkSize * chunkData->chunkHeight);
   return {x, y, z};
 }
 
-void loopThroughTheBlocks(const ChunkData &chunkData, std::function<void(int, int, int)> actionToPerform)
+void loopThroughTheBlocks(ChunkData *chunkData, std::function<void(int, int, int)> actionToPerform)
 {
-  for (size_t index = 0; index < chunkData.blocks.size(); ++index)
+  for (int x = 0; x < chunkData->chunkSize; x++)
   {
-    glm::ivec3 position = getPositionFromIndex(chunkData, index);
-    actionToPerform(position.x, position.y, position.z);
+    for (int z = 0; z < chunkData->chunkSize; z++)
+    {
+      for (int y = 0; y < chunkData->chunkHeight; y++)
+      {
+        actionToPerform(x, y, z);
+      }
+    }
   }
 }
 
-bool inRange(const ChunkData &chunkData, int axisCoordinate)
+bool inRange(ChunkData *chunkData, int axisCoordinate)
 {
-  return axisCoordinate >= 0 && axisCoordinate < chunkData.chunkSize;
+  return axisCoordinate >= 0 && axisCoordinate < chunkData->chunkSize;
 }
 
-bool inRangeHeight(const ChunkData &chunkData, int ycoordinate)
+bool inRangeHeight(ChunkData *chunkData, int ycoordinate)
 {
-  return ycoordinate >= 0 && ycoordinate < chunkData.chunkHeight;
+  return ycoordinate >= 0 && ycoordinate < chunkData->chunkHeight;
 }
 
-BlockType getBlockFromChunkCoordinates(const ChunkData &chunkData, glm::ivec3 chunkCoordinates)
+BlockType getBlockFromChunkCoordinates(ChunkData *chunkData, glm::ivec3 chunkCoordinates)
 {
   return getBlockFromChunkCoordinates(chunkData, chunkCoordinates.x, chunkCoordinates.y, chunkCoordinates.z);
 }
 
-BlockType getBlockFromChunkCoordinates(const ChunkData &chunkData, int x, int y, int z)
+BlockType getBlockFromChunkCoordinates(ChunkData *chunkData, int x, int y, int z)
 {
   if (inRange(chunkData, x) && inRangeHeight(chunkData, y) && inRange(chunkData, z))
   {
     int index = getIndexFromPosition(chunkData, x, y, z);
-    return chunkData.blocks[index];
+    return chunkData->blocks[index];
   }
 
-  return chunkData.world->getBlockFromChunkCoordinates(chunkData, chunkData.worldPosition.x + x, chunkData.worldPosition.y + y, chunkData.worldPosition.z + z);
+  return chunkData->world->getBlockFromChunkCoordinates(chunkData, chunkData->worldPosition.x + x, chunkData->worldPosition.y + y, chunkData->worldPosition.z + z);
 }
 
-void setBlock(ChunkData &chunkData, const glm::ivec3 &localPosition, BlockType block)
+void setBlock(ChunkData *chunkData, const glm::ivec3 &localPosition, BlockType block)
 {
   if (inRange(chunkData, localPosition.x) && inRangeHeight(chunkData, localPosition.y) && inRange(chunkData, localPosition.z))
   {
     int index = getIndexFromPosition(chunkData, localPosition.x, localPosition.y, localPosition.z);
-    chunkData.blocks[index] = block;
+    chunkData->blocks[index] = block;
   }
   else
   {
@@ -64,36 +70,63 @@ void setBlock(ChunkData &chunkData, const glm::ivec3 &localPosition, BlockType b
   }
 }
 
-int getIndexFromPosition(const ChunkData &chunkData, int x, int y, int z)
+int getIndexFromPosition(ChunkData *chunkData, int x, int y, int z)
 {
-  return x + chunkData.chunkSize * y + chunkData.chunkSize * chunkData.chunkHeight * z;
+  return x + chunkData->chunkSize * (z + chunkData->chunkSize * y);
 }
 
-glm::ivec3 getBlockInChunkCoordinates(const ChunkData &chunkData, const glm::ivec3 &pos)
+glm::ivec3 getBlockInChunkCoordinates(ChunkData *chunkData, const glm::ivec3 &pos)
 {
   return glm::ivec3{
-      pos.x - chunkData.worldPosition.x,
-      pos.y - chunkData.worldPosition.y,
-      pos.z - chunkData.worldPosition.z};
+      pos.x - chunkData->worldPosition.x,
+      pos.y - chunkData->worldPosition.y,
+      pos.z - chunkData->worldPosition.z};
 }
 
-glm::ivec3 getBlockInChunkCoordinates(const ChunkData &chunkData, int x, int y, int z)
+glm::ivec3 getBlockInChunkCoordinates(ChunkData *chunkData, int x, int y, int z)
 {
   return glm::ivec3{
-      x - chunkData.worldPosition.x,
-      y - chunkData.worldPosition.y,
-      z - chunkData.worldPosition.z};
+      x - chunkData->worldPosition.x,
+      y - chunkData->worldPosition.y,
+      z - chunkData->worldPosition.z};
 }
 
-MeshData getChunkMeshData(const ChunkData &chunkData)
+MeshData getChunkMeshData(ChunkData *chunkData)
 {
+
   MeshData meshData(true);
 
-  loopThroughTheBlocks(chunkData, [&](int x, int y, int z)
-                       {
-        BlockType block = chunkData.blocks[getIndexFromPosition(chunkData, x, y, z)];
-        meshData = BlockHelper::getMeshData(chunkData, x, y, z, meshData, block); });
+  std::cout << "x: " << chunkData->chunkSize << std::endl;
+  std::cout << "y: " << chunkData->chunkHeight << std::endl;
+  std::cout << "z: " << chunkData->chunkSize << std::endl;
+  std::cout << "total: " << chunkData->chunkSize * chunkData->chunkSize * chunkData->chunkHeight << std::endl;
+  std::cout << "Size: " << chunkData->blocks.size() << std::endl;
+  int chunkSize = chunkData->chunkSize;
+  int chunkHeight = chunkData->chunkHeight;
 
+  ChunkData copiedData = *chunkData;
+
+  for (int z = 0; z < chunkSize; z++)
+  {
+    int zOffset = z * chunkHeight * chunkSize;
+    for (int y = 0; y < chunkHeight; y++)
+    {
+      int yOffset = y * chunkSize;
+      auto start = std::chrono::high_resolution_clock::now();
+      for (int x = 0; x < chunkSize; x++)
+      {
+
+        int index = x + yOffset + zOffset;
+        BlockType block = copiedData.blocks[index];
+
+        BlockHelper::getMeshData(chunkData, x, y, z, &meshData, block);
+      }
+
+      auto end = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> elapsed = end - start;
+      std::cout << "Time taken for operations at " << y << ", " << z << "): " << elapsed.count() << " seconds." << std::endl;
+    }
+  }
   return meshData;
 }
 

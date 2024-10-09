@@ -29,6 +29,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "vertex.h"
 #include "world.h"
+#include "chunkUtils.h"
 
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 1200;
@@ -761,6 +762,7 @@ private:
 
     void cleanupSwapChain()
     {
+
         for (size_t i = 0; i < swapChainFramebuffers.size(); i++)
         {
             vkDestroyFramebuffer(device, swapChainFramebuffers[i], nullptr);
@@ -888,7 +890,7 @@ private:
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
-        updateUniformBuffer(currentFrame, glm::vec3(0.f, -0.3f, 0.f));
+        updateUniformBuffer(currentFrame, glm::vec3(0.f, 0.0f, 0.f));
 
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
@@ -1590,13 +1592,13 @@ private:
         UniformBufferObject ubo{};
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, position);
-        // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         ubo.model = glm::scale(model, glm::vec3(0.7, 0.7, 0.7));
 
-        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.view = glm::lookAt(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
-        ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+        ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 
         ubo.proj[1][1] *= -1;
 
@@ -1793,54 +1795,9 @@ private:
                 return false;
             }
         }
-
         return true;
     }
 };
-
-void printVec3(const glm::vec3 &vec)
-{
-    std::cout << "vec3(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
-}
-
-// Print function for a glm::vec2
-void printVec2(const glm::vec2 &vec)
-{
-    std::cout << "vec2(" << vec.x << ", " << vec.y << ")";
-}
-
-// Function to print a Vertex
-void printVertex(const Vertex &vertex)
-{
-    std::cout << "Vertex { ";
-    printVec3(vertex.pos);
-    std::cout << ", ";
-    printVec3(vertex.color);
-    std::cout << ", ";
-    printVec2(vertex.texPos);
-    std::cout << " }" << std::endl;
-}
-
-// Function to print the vertices vector
-void printVertices(const std::vector<Vertex> &vertices)
-{
-    std::cout << "Vertices:" << std::endl;
-    for (const auto &vertex : vertices)
-    {
-        printVertex(vertex);
-    }
-}
-
-// Function to print the indices vector
-void printIndices(const std::vector<uint32_t> &indices)
-{
-    std::cout << "Indices:" << std::endl;
-    for (const auto &index : indices)
-    {
-        std::cout << index << " ";
-    }
-    std::cout << std::endl;
-}
 
 int main()
 {
@@ -1849,8 +1806,7 @@ int main()
     try
     {
         world.generateWorld(&vertices, &indices);
-        printVertices(vertices);
-        printIndices(indices);
+        std::cout << "waiting for input" << std::endl;
         std::cin.get();
         app.run();
     }

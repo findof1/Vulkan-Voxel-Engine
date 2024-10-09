@@ -10,14 +10,14 @@ class MeshData
 {
 public:
   std::vector<Vertex> vertices;
-  std::vector<int> indices;
-  std::unique_ptr<MeshData> waterMesh;
+  std::vector<uint32_t> indices;
+  MeshData *waterMesh;
 
   MeshData(bool isMainMesh = true) : isMainMesh(isMainMesh)
   {
     if (isMainMesh)
     {
-      waterMesh = std::make_unique<MeshData>(false);
+      waterMesh = new MeshData(false);
     }
   }
 

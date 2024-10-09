@@ -20,11 +20,11 @@ private:
   static const std::array<Direction, 6> directions;
 
 public:
-  static MeshData getMeshData(const ChunkData &chunk, int x, int y, int z, MeshData meshData, BlockType blockType);
+  static void getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType);
 
-  static MeshData getFaceDataIn(Direction direction, const ChunkData &chunk, int x, int y, int z, MeshData meshData, BlockType blockType);
+  static void getFaceDataIn(Direction direction, ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType);
 
-  static void GetFaceVertices(Direction direction, int x, int y, int z, MeshData &meshData, BlockType blockType);
+  static void GetFaceVertices(Direction direction, int x, int y, int z, MeshData *meshData, BlockType blockType);
 
   static std::array<glm::vec2, 4> faceUVs(Direction direction, BlockType blockType);
 

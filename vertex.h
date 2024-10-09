@@ -4,6 +4,8 @@
 #include <vulkan/vulkan.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <array>
+#include <iostream>
+#include <vector>
 
 struct Vertex
 {
@@ -42,4 +44,5 @@ struct Vertex
     return attributeDescriptions;
   }
 };
+
 #endif

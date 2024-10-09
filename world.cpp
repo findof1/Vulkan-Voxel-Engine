@@ -19,31 +19,34 @@ void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *
     for (int z = 0; z < mapSizeInChunks; z++)
     {
 
-      ChunkData data = ChunkData(this, glm::vec3(x * chunkSize, 0, z * chunkSize), chunkSize, chunkHeight);
+      ChunkData *data = new ChunkData(this, glm::vec3(x * chunkSize, 0, z * chunkSize), chunkSize, chunkHeight);
       generateVoxels(data);
-      chunkDataDictionary.emplace(std::make_pair(data.worldPosition, data));
+
+      chunkDataDictionary.emplace(std::make_pair(glm::ivec3(data->worldPosition), *data));
     }
   }
 
   for (auto &entry : chunkDataDictionary)
   {
-    ChunkData &data = entry.second;
 
-    MeshData meshData = getChunkMeshData(data);
+    ChunkData *data = &entry.second;
 
     ChunkRenderer chunkRenderer(data);
-    chunkDictionary[data.worldPosition] = chunkRenderer;
-    chunkRenderer.updateChunk(vertices, indices);
+    chunkDictionary[data->worldPosition] = chunkRenderer;
+
+    MeshData meshData = getChunkMeshData(chunkRenderer.chunkData);
+
+    chunkRenderer.updateChunk(&meshData, vertices, indices);
   }
 }
 
-void World::generateVoxels(ChunkData &data)
+void World::generateVoxels(ChunkData *data)
 {
-  for (int x = 0; x < data.chunkSize; x++)
+  for (int x = 0; x < data->chunkSize; x++)
   {
-    for (int z = 0; z < data.chunkSize; z++)
+    for (int z = 0; z < data->chunkSize; z++)
     {
-      float noiseValue = glm::perlin(glm::vec2((data.worldPosition.x + x) * noiseScale, (data.worldPosition.z + z) * noiseScale));
+      float noiseValue = glm::perlin(glm::vec2((data->worldPosition.x + x) * noiseScale, (data->worldPosition.z + z) * noiseScale));
       int groundPosition = static_cast<int>(std::round(noiseValue * chunkHeight));
       for (int y = 0; y < chunkHeight; y++)
       {
@@ -64,13 +67,13 @@ void World::generateVoxels(ChunkData &data)
           voxelType = BlockType::Grass_Dirt;
         }
 
-        setBlock(data, glm::vec3(x, y, z), voxelType);
+        setBlock(data, glm::ivec3(x, y, z), voxelType);
       }
     }
   }
 }
 
-BlockType World::getBlockFromChunkCoordinates(const ChunkData &chunkData, int x, int y, int z)
+BlockType World::getBlockFromChunkCoordinates(ChunkData *chunkData, int x, int y, int z)
 {
   glm::vec3 pos = chunkPositionFromBlockCoords(this, x, y, z);
 
@@ -80,7 +83,7 @@ BlockType World::getBlockFromChunkCoordinates(const ChunkData &chunkData, int x,
     return BlockType::Nothing;
   }
 
-  ChunkData &containerChunk = it->second;
+  ChunkData *containerChunk = &it->second;
 
   glm::vec3 blockInChunkCoordinates = getBlockInChunkCoordinates(containerChunk, glm::vec3(x, y, z));
   return getBlockFromChunkCoordinates(containerChunk, blockInChunkCoordinates.x, blockInChunkCoordinates.y, blockInChunkCoordinates.z);
