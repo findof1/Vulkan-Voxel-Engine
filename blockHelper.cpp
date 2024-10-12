@@ -9,12 +9,16 @@ void BlockHelper::getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *m
 {
 
   if (blockType == BlockType::Air || blockType == BlockType::Nothing)
+  {
+
     return;
+  }
 
   for (const auto &direction : directions)
   {
 
     glm::ivec3 neighbourBlockCoordinates = glm::ivec3(x, y, z) + getVector(direction);
+
     BlockType neighbourBlockType = getBlockFromChunkCoordinates(chunk, neighbourBlockCoordinates.x, neighbourBlockCoordinates.y, neighbourBlockCoordinates.z);
 
     if (neighbourBlockType != BlockType::Nothing)
@@ -55,40 +59,40 @@ void BlockHelper::GetFaceVertices(Direction direction, int x, int y, int z, Mesh
   switch (direction)
   {
   case Direction::backwards:
-    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType));
+    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType)[0]);
+    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType)[1]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType)[2]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType)[3]);
     break;
   case Direction::foreward:
-    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType));
+    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType)[0]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType)[1]);
+    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType)[2]);
+    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType)[3]);
     break;
   case Direction::left:
-    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType));
+    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType)[0]);
+    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType)[1]);
+    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType)[2]);
+    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType)[3]);
     break;
   case Direction::right:
-    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType));
+    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType)[0]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType)[1]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType)[2]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType)[3]);
     break;
   case Direction::down:
-    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType));
+    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType)[0]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z - 0.5f), faceUVs(direction, blockType)[1]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType)[2]);
+    meshData->addVertex(glm::vec3(x - 0.5f, y - 0.5f, z + 0.5f), faceUVs(direction, blockType)[3]);
     break;
   case Direction::up:
-    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType));
-    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType));
+    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType)[0]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f), faceUVs(direction, blockType)[1]);
+    meshData->addVertex(glm::vec3(x + 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType)[2]);
+    meshData->addVertex(glm::vec3(x - 0.5f, y + 0.5f, z - 0.5f), faceUVs(direction, blockType)[3]);
     break;
   default:
     break;

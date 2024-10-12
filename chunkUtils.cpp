@@ -3,7 +3,6 @@
 #include <functional>
 #include <stdexcept>
 #include <glm/glm.hpp>
-#include <chrono>
 #include "chunkData.h"
 #include "blockType.h"
 #include "meshData.h"
@@ -54,7 +53,7 @@ BlockType getBlockFromChunkCoordinates(ChunkData *chunkData, int x, int y, int z
     return chunkData->blocks[index];
   }
 
-  return chunkData->world->getBlockFromChunkCoordinates(chunkData, chunkData->worldPosition.x + x, chunkData->worldPosition.y + y, chunkData->worldPosition.z + z);
+  return chunkData->world->getBlockFromChunkCoordinates(chunkData, chunkData->worldPosition.x + x, chunkData->worldPosition.y + y, chunkData->worldPosition.z + z, 0);
 }
 
 void setBlock(ChunkData *chunkData, const glm::ivec3 &localPosition, BlockType block)
@@ -96,11 +95,6 @@ MeshData getChunkMeshData(ChunkData *chunkData)
 
   MeshData meshData(true);
 
-  std::cout << "x: " << chunkData->chunkSize << std::endl;
-  std::cout << "y: " << chunkData->chunkHeight << std::endl;
-  std::cout << "z: " << chunkData->chunkSize << std::endl;
-  std::cout << "total: " << chunkData->chunkSize * chunkData->chunkSize * chunkData->chunkHeight << std::endl;
-  std::cout << "Size: " << chunkData->blocks.size() << std::endl;
   int chunkSize = chunkData->chunkSize;
   int chunkHeight = chunkData->chunkHeight;
 
@@ -112,7 +106,7 @@ MeshData getChunkMeshData(ChunkData *chunkData)
     for (int y = 0; y < chunkHeight; y++)
     {
       int yOffset = y * chunkSize;
-      auto start = std::chrono::high_resolution_clock::now();
+
       for (int x = 0; x < chunkSize; x++)
       {
 
@@ -121,10 +115,6 @@ MeshData getChunkMeshData(ChunkData *chunkData)
 
         BlockHelper::getMeshData(chunkData, x, y, z, &meshData, block);
       }
-
-      auto end = std::chrono::high_resolution_clock::now();
-      std::chrono::duration<double> elapsed = end - start;
-      std::cout << "Time taken for operations at " << y << ", " << z << "): " << elapsed.count() << " seconds." << std::endl;
     }
   }
   return meshData;

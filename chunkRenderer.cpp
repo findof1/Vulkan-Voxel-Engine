@@ -22,7 +22,6 @@ void ChunkRenderer::renderMesh(MeshData *meshData, std::vector<Vertex> *vertices
   size = meshData->indices.size() + meshData->waterMesh->indices.size();
   indices->reserve(size);
 
-  std::cin.get();
   vertices->insert(vertices->end(), meshData->vertices.begin(), meshData->vertices.end());
   vertices->insert(vertices->end(), meshData->waterMesh->vertices.begin(), meshData->waterMesh->vertices.end());
 

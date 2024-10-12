@@ -47,28 +47,25 @@ public:
     return *this;
   }
 
-  void addVertex(glm::vec3 position, std::array<glm::vec2, 4UL> faceUVs)
+  void addVertex(glm::vec3 position, glm::vec2 faceUV)
   {
-    for (int i = 0; i < 4; ++i)
-    {
-      Vertex vertex;
-      vertex.pos = position;
-      vertex.color = glm::vec3(1.0f, 1.0f, 1.0f);
-      vertex.texPos = faceUVs[i];
+    Vertex vertex;
+    vertex.pos = position;
+    vertex.color = glm::vec3(1.0f, 1.0f, 1.0f);
+    vertex.texPos = faceUV;
 
-      vertices.push_back(vertex);
-    }
+    vertices.push_back(vertex);
   }
 
   void addIndices()
   {
     indices.emplace_back(vertices.size() - 4);
-    indices.emplace_back(vertices.size() - 2);
     indices.emplace_back(vertices.size() - 3);
+    indices.emplace_back(vertices.size() - 2);
 
     indices.emplace_back(vertices.size() - 4);
-    indices.emplace_back(vertices.size() - 1);
     indices.emplace_back(vertices.size() - 2);
+    indices.emplace_back(vertices.size() - 1);
   }
 
 private:
