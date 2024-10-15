@@ -102,15 +102,14 @@ MeshData getChunkMeshData(ChunkData *chunkData)
 
   for (int z = 0; z < chunkSize; z++)
   {
-    int zOffset = z * chunkHeight * chunkSize;
     for (int y = 0; y < chunkHeight; y++)
     {
-      int yOffset = y * chunkSize;
+      int preCalculation = chunkData->chunkSize * (z + chunkData->chunkSize * y);
 
       for (int x = 0; x < chunkSize; x++)
       {
 
-        int index = x + yOffset + zOffset;
+        int index = x + preCalculation;
         BlockType block = copiedData.blocks[index];
 
         BlockHelper::getMeshData(chunkData, x, y, z, &meshData, block);

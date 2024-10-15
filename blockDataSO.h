@@ -13,12 +13,14 @@ public:
   glm::ivec2 down;
   glm::ivec2 side;
 
+  bool isSolid;
+
   TextureData(BlockType type, glm::ivec2 upPos, glm::ivec2 downPos, glm::ivec2 sidePos)
       : blockType(type), up(upPos), down(downPos), side(sidePos) {}
 
   TextureData()
   {
-    }
+  }
 };
 
 class BlockDataSO

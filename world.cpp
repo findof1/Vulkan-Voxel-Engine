@@ -13,6 +13,8 @@ World::World() {}
 void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
 {
   chunkDataDictionary.clear();
+  vertices->clear();
+  indices->clear();
   chunkDictionary.clear();
 
   for (int x = 0; x < mapSizeInChunks; x++)
@@ -52,7 +54,7 @@ void World::generateVoxels(ChunkData *data)
     for (int z = 0; z < data->chunkSize; z++)
     {
       float noiseValue = glm::perlin(glm::vec2((data->worldPosition.x + x) * noiseScale, (data->worldPosition.z + z) * noiseScale));
-      int groundPosition = static_cast<int>(std::round(noiseValue * chunkHeight));
+      int groundPosition = static_cast<int>(std::round(noiseValue * chunkHeight)) + 15;
       for (int y = 0; y < chunkHeight; y++)
       {
         BlockType voxelType = BlockType::Dirt;

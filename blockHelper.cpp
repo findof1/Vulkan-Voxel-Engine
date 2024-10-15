@@ -29,15 +29,10 @@ void BlockHelper::getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *m
 
         if (neighbourBlockType == BlockType::Air)
         {
-
-          if (neighbourBlockType == BlockType::Air)
-          {
-
-            getFaceDataIn(direction, chunk, x, y, z, meshData->waterMesh, blockType);
-          }
+          getFaceDataIn(direction, chunk, x, y, z, meshData->waterMesh, blockType);
         }
       }
-      else
+      else if (neighbourBlockType == BlockType::Air || neighbourBlockType == BlockType::Water)
       {
         getFaceDataIn(direction, chunk, x, y, z, meshData, blockType);
       }
