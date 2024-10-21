@@ -33,7 +33,7 @@ glm::ivec3 getBlockInChunkCoordinates(ChunkData *chunkData, const glm::ivec3 &po
 
 glm::ivec3 getBlockInChunkCoordinates(ChunkData *chunkData, int x, int y, int z);
 
-MeshData getChunkMeshData(ChunkData *chunkData);
+MeshData getChunkMeshData(ChunkData *chunkData, int indicesCount);
 
 glm::ivec3 chunkPositionFromBlockCoords(World *world, int x, int y, int z);
 

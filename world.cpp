@@ -37,7 +37,7 @@ void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *
     ChunkRenderer chunkRenderer(data);
     chunkDictionary[data->worldPosition] = chunkRenderer;
 
-    MeshData meshData = getChunkMeshData(chunkRenderer.chunkData);
+    MeshData meshData = getChunkMeshData(chunkRenderer.chunkData, indices->size());
 
     chunkRenderer.updateChunk(&meshData, vertices, indices);
 

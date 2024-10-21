@@ -57,15 +57,15 @@ public:
     vertices.push_back(vertex);
   }
 
-  void addIndices()
+  void addIndices(int indicesCount)
   {
-    indices.emplace_back(vertices.size() - 4);
-    indices.emplace_back(vertices.size() - 3);
-    indices.emplace_back(vertices.size() - 2);
+    indices.emplace_back((vertices.size() - 4) + indicesCount);
+    indices.emplace_back((vertices.size() - 3) + indicesCount);
+    indices.emplace_back((vertices.size() - 2) + indicesCount);
 
-    indices.emplace_back(vertices.size() - 4);
-    indices.emplace_back(vertices.size() - 2);
-    indices.emplace_back(vertices.size() - 1);
+    indices.emplace_back((vertices.size() - 4) + indicesCount);
+    indices.emplace_back((vertices.size() - 2) + indicesCount);
+    indices.emplace_back((vertices.size() - 1) + indicesCount);
   }
 
 private:

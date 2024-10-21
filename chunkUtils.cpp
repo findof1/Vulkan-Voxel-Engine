@@ -90,7 +90,7 @@ glm::ivec3 getBlockInChunkCoordinates(ChunkData *chunkData, int x, int y, int z)
       z - chunkData->worldPosition.z};
 }
 
-MeshData getChunkMeshData(ChunkData *chunkData)
+MeshData getChunkMeshData(ChunkData *chunkData, int indicesCount)
 {
 
   MeshData meshData(true);
@@ -112,7 +112,7 @@ MeshData getChunkMeshData(ChunkData *chunkData)
         int index = x + preCalculation;
         BlockType block = copiedData.blocks[index];
 
-        BlockHelper::getMeshData(chunkData, x, y, z, &meshData, block);
+        BlockHelper::getMeshData(chunkData, x, y, z, &meshData, block, indicesCount);
       }
     }
   }

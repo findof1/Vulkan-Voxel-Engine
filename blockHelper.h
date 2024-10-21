@@ -20,9 +20,9 @@ private:
   static const std::array<Direction, 6> directions;
 
 public:
-  static void getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType);
+  static void getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType, int indicesCount);
 
-  static void getFaceDataIn(Direction direction, ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType);
+  static void getFaceDataIn(Direction direction, ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType, int indicesCount);
 
   static void GetFaceVertices(Direction direction, int x, int y, int z, MeshData *meshData, BlockType blockType);
 

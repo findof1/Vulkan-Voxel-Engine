@@ -25,10 +25,10 @@ struct Vec3Comparator
 class World
 {
 public:
-  int mapSizeInChunks = 1;
+  int mapSizeInChunks = 10;
   int chunkSize = 16, chunkHeight = 100;
   int waterThreshold = 50;
-  float noiseScale = 0.005f;
+  float noiseScale = 0.06f;
 
   std::map<glm::ivec3, ChunkData, Vec3Comparator> chunkDataDictionary;
   std::map<glm::ivec3, ChunkRenderer, Vec3Comparator> chunkDictionary;

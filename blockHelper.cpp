@@ -5,7 +5,7 @@ const std::array<Direction, 6> BlockHelper::directions = {foreward,
                                                           left,
                                                           up,
                                                           down};
-void BlockHelper::getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType)
+void BlockHelper::getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType, int indicesCount)
 {
 
   if (blockType == BlockType::Air || blockType == BlockType::Nothing)
@@ -29,23 +29,23 @@ void BlockHelper::getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *m
 
         if (neighbourBlockType == BlockType::Air)
         {
-          getFaceDataIn(direction, chunk, x, y, z, meshData->waterMesh, blockType);
+          getFaceDataIn(direction, chunk, x + chunk->worldPosition.x, y, z + chunk->worldPosition.z, meshData->waterMesh, blockType, indicesCount);
         }
       }
       else if (neighbourBlockType == BlockType::Air || neighbourBlockType == BlockType::Water)
       {
-        getFaceDataIn(direction, chunk, x, y, z, meshData, blockType);
+        getFaceDataIn(direction, chunk, x + chunk->worldPosition.x, y, z + chunk->worldPosition.z, meshData, blockType, indicesCount);
       }
     }
   }
 }
 
-void BlockHelper::getFaceDataIn(Direction direction, ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType)
+void BlockHelper::getFaceDataIn(Direction direction, ChunkData *chunk, int x, int y, int z, MeshData *meshData, BlockType blockType, int indicesCount)
 {
 
   GetFaceVertices(direction, x, y, z, meshData, blockType);
 
-  meshData->addIndices();
+  meshData->addIndices(indicesCount);
 }
 
 void BlockHelper::GetFaceVertices(Direction direction, int x, int y, int z, MeshData *meshData, BlockType blockType)

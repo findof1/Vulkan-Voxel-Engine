@@ -16,10 +16,12 @@ ChunkRenderer::ChunkRenderer(ChunkData *data) : chunkData(data)
 void ChunkRenderer::renderMesh(MeshData *meshData, std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
 {
 
-  int size = meshData->vertices.size() + meshData->waterMesh->vertices.size();
+  int currentCapacity = vertices->capacity();
+  int size = meshData->vertices.size() + meshData->waterMesh->vertices.size() + currentCapacity;
   vertices->reserve(size);
 
-  size = meshData->indices.size() + meshData->waterMesh->indices.size();
+  currentCapacity = indices->capacity();
+  size = meshData->indices.size() + meshData->waterMesh->indices.size() + currentCapacity;
   indices->reserve(size);
 
   vertices->insert(vertices->end(), meshData->vertices.begin(), meshData->vertices.end());
@@ -31,7 +33,7 @@ void ChunkRenderer::renderMesh(MeshData *meshData, std::vector<Vertex> *vertices
 
 void ChunkRenderer::updateChunk(std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
 {
-  MeshData mesh = getChunkMeshData(chunkData);
+  MeshData mesh = getChunkMeshData(chunkData, indices->size());
   renderMesh(&mesh, vertices, indices);
 }
 
