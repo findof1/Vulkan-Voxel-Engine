@@ -37,7 +37,7 @@ void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *
     ChunkRenderer chunkRenderer(data);
     chunkDictionary[data->worldPosition] = chunkRenderer;
 
-    MeshData meshData = getChunkMeshData(chunkRenderer.chunkData, indices->size());
+    MeshData meshData = getChunkMeshData(chunkRenderer.chunkData, vertices->size());
 
     chunkRenderer.updateChunk(&meshData, vertices, indices);
 
@@ -53,8 +53,8 @@ void World::generateVoxels(ChunkData *data)
   {
     for (int z = 0; z < data->chunkSize; z++)
     {
-      float noiseValue = glm::perlin(glm::vec2((data->worldPosition.x + x) * noiseScale, (data->worldPosition.z + z) * noiseScale));
-      int groundPosition = static_cast<int>(std::round(noiseValue * chunkHeight)) + 15;
+      float noiseValue = glm::perlin(glm::vec2((data->worldPosition.x + x) * noiseScale, (data->worldPosition.z + z) * noiseScale)) + 1;
+      int groundPosition = static_cast<int>(std::round(noiseValue * (chunkHeight / 2)));
       for (int y = 0; y < chunkHeight; y++)
       {
         BlockType voxelType = BlockType::Dirt;
