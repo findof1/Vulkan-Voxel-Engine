@@ -53,7 +53,7 @@ BlockType getBlockFromChunkCoordinates(ChunkData *chunkData, int x, int y, int z
     return chunkData->blocks[index];
   }
 
-  return chunkData->world->getBlockFromChunkCoordinates(chunkData, chunkData->worldPosition.x + x, chunkData->worldPosition.y + y, chunkData->worldPosition.z + z, 0);
+  return chunkData->world->worldGetBlockFromChunkCoordinates(chunkData, chunkData->worldPosition.x + x, chunkData->worldPosition.y + y, chunkData->worldPosition.z + z);
 }
 
 void setBlock(ChunkData *chunkData, const glm::ivec3 &localPosition, BlockType block)

@@ -26,13 +26,13 @@
 #include <fstream>
 #include <array>
 #include <chrono>
-#include <glm/gtc/matrix_transform.hpp>
 #include "vertex.h"
 #include "world.h"
 #include "chunkUtils.h"
+#include "camera.h"
 
-const uint32_t WIDTH = 1600;
-const uint32_t HEIGHT = 1200;
+uint32_t WIDTH = 1600;
+uint32_t HEIGHT = 1200;
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::string MODEL_PATH = "models/couch1.obj";
@@ -91,6 +91,7 @@ public:
     }
 
 private:
+    Camera camera;
     VkInstance instance;
     VkDevice device;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -133,6 +134,11 @@ private:
     VkDeviceMemory depthImageMemory;
     VkImageView depthImageView;
 
+    bool firstMouse = true;
+    float lastX = WIDTH / 2, lastY = HEIGHT / 2;
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
+
     bool framebufferResized = false;
 
     uint32_t currentFrame = 0;
@@ -147,6 +153,54 @@ private:
         window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
         glfwSetWindowUserPointer(window, this);
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+        glfwSetScrollCallback(window, scroll_callback);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetCursorPosCallback(window, mouse_callback);
+    }
+
+    void processInput()
+    {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
+
+        float cameraSpeed = 20.0f * deltaTime;
+
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.ProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.ProcessKeyboard(RIGHT, deltaTime);
+    }
+
+    static void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
+    {
+        auto app = reinterpret_cast<Renderer *>(glfwGetWindowUserPointer(window));
+        float xpos = static_cast<float>(xposIn);
+        float ypos = static_cast<float>(yposIn);
+
+        if (app->firstMouse)
+        {
+            app->lastX = xpos;
+            app->lastY = ypos;
+            app->firstMouse = false;
+        }
+
+        float xoffset = xpos - app->lastX;
+        float yoffset = app->lastY - ypos;
+
+        app->lastX = xpos;
+        app->lastY = ypos;
+
+        app->camera.ProcessMouseMovement(xoffset, yoffset);
+    }
+
+    static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+    {
+        auto app = reinterpret_cast<Renderer *>(glfwGetWindowUserPointer(window));
+        app->camera.ProcessMouseScroll(static_cast<float>(yoffset));
     }
 
     static void framebufferResizeCallback(GLFWwindow *window, int width, int height)
@@ -169,7 +223,7 @@ private:
         createCommandPool();
         createDepthResources();
         createFramebuffers();
-        createTextureImage("textures/wall.jpg");
+        createTextureImage("textures/tiles.png");
         createTextureImageView();
         createTextureSampler();
         // loadModel();
@@ -785,7 +839,8 @@ private:
             glfwGetFramebufferSize(window, &width, &height);
             glfwWaitEvents();
         }
-
+        WIDTH = width;
+        HEIGHT = height;
         vkDeviceWaitIdle(device);
 
         cleanupSwapChain();
@@ -1503,6 +1558,10 @@ private:
     {
         while (!glfwWindowShouldClose(window))
         {
+            float currentFrame = static_cast<float>(glfwGetTime());
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+            processInput();
             glfwPollEvents();
             drawFrame();
         }
@@ -1590,17 +1649,16 @@ private:
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
         UniformBufferObject ubo{};
+
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, position);
 
         // model = glm::rotate(model, glm::radians(550.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, 6 * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, 6 * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.model = glm::scale(model, glm::vec3(0.4, 0.4, 0.4));
+        // model = glm::scale(model, glm::vec3(0.4, 0.4, 0.4));
+        ubo.model = model;
+        ubo.view = camera.GetViewMatrix();
 
-        ubo.view = glm::lookAt(glm::vec3(20.0f, -20.0f, 20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+        ubo.proj = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 1000.0f);
 
         ubo.proj[1][1] *= -1;
 

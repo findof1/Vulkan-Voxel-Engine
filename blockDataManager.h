@@ -13,8 +13,8 @@ public:
   static float tileSizeX;
   static float tileSizeY;
   static std::unordered_map<BlockType, TextureData> blockTextureDataDictionary;
-  BlockDataSO textureData;
+  BlockDataSO *textureData;
 
-  BlockDataManager(const std::vector<TextureData> &textureDataList, BlockDataSO &&textureData);
+  BlockDataManager(BlockDataSO *textureData);
 };
 #endif

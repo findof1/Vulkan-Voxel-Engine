@@ -17,6 +17,31 @@ void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *
   indices->clear();
   chunkDictionary.clear();
 
+  BlockDataSO textureDataSource(0.1, 0.1);
+
+  TextureData grassTexture;
+  grassTexture.up = glm::vec2(6, 8);
+  grassTexture.down = glm::vec2(7, 4);
+  grassTexture.side = glm::vec2(7, 5);
+  grassTexture.blockType = BlockType::Grass_Dirt;
+
+  TextureData dirtTexture;
+  dirtTexture.up = glm::vec2(7, 4);
+  dirtTexture.down = glm::vec2(7, 4);
+  dirtTexture.side = glm::vec2(7, 4);
+  dirtTexture.blockType = BlockType::Dirt;
+
+  TextureData waterTexture;
+  waterTexture.up = glm::vec2(0, 3);
+  waterTexture.down = glm::vec2(0, 3);
+  waterTexture.side = glm::vec2(0, 3);
+  waterTexture.blockType = BlockType::Water;
+  textureDataSource.textureDataList.push_back(grassTexture);
+  textureDataSource.textureDataList.push_back(dirtTexture);
+  textureDataSource.textureDataList.push_back(waterTexture);
+
+  BlockDataManager blockManager(&textureDataSource);
+
   for (int x = 0; x < mapSizeInChunks; x++)
   {
     for (int z = 0; z < mapSizeInChunks; z++)
@@ -80,12 +105,8 @@ void World::generateVoxels(ChunkData *data)
   }
 }
 
-BlockType World::getBlockFromChunkCoordinates(ChunkData *chunkData, int x, int y, int z, int depth)
+BlockType World::worldGetBlockFromChunkCoordinates(ChunkData *chunkData, int x, int y, int z)
 {
-  if (depth > 14)
-  {
-    return BlockType::Nothing;
-  }
 
   glm::vec3 pos = chunkPositionFromBlockCoords(this, x, y, z);
 
@@ -106,5 +127,5 @@ BlockType World::getBlockFromChunkCoordinates(ChunkData *chunkData, int x, int y
     return BlockType::Nothing;
   }
 
-  return getBlockFromChunkCoordinates(containerChunk, blockInChunkCoordinates.x, blockInChunkCoordinates.y, blockInChunkCoordinates.z, depth + 1);
+  return getBlockFromChunkCoordinates(containerChunk, blockInChunkCoordinates.x, blockInChunkCoordinates.y, blockInChunkCoordinates.z);
 }

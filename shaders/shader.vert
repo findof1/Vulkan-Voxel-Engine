@@ -15,6 +15,8 @@ layout(location = 1) out vec2 fragTexCoord;
 
 void main() {
     gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
-    fragColor = inColor;
+    float gradient = clamp(inPosition.y / 200.0, 0.0, 1.0);
+    fragColor = mix(vec3(0.1, 0.1, 0.1), vec3(1.0, 1.0, 1.0), gradient);
+    ;
     fragTexCoord = inTexCoord;
 }

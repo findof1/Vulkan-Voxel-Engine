@@ -29,12 +29,12 @@ void BlockHelper::getMeshData(ChunkData *chunk, int x, int y, int z, MeshData *m
 
         if (neighbourBlockType == BlockType::Air)
         {
-          getFaceDataIn(direction, chunk, x + chunk->worldPosition.x, y, z + chunk->worldPosition.z, meshData->waterMesh, blockType, indicesCount);
+          getFaceDataIn(direction, chunk, x + chunk->worldPosition.x, y, z + chunk->worldPosition.z, meshData->waterMesh, blockType, indicesCount + meshData->vertices.size());
         }
       }
       else if (neighbourBlockType == BlockType::Air || neighbourBlockType == BlockType::Water)
       {
-        getFaceDataIn(direction, chunk, x + chunk->worldPosition.x, y, z + chunk->worldPosition.z, meshData, blockType, indicesCount);
+        getFaceDataIn(direction, chunk, x + chunk->worldPosition.x, y, z + chunk->worldPosition.z, meshData, blockType, indicesCount + meshData->waterMesh->vertices.size());
       }
     }
   }
@@ -100,16 +100,16 @@ std::array<glm::vec2, 4> BlockHelper::faceUVs(Direction direction, BlockType blo
   auto tilePos = TexturePosition(direction, blockType);
 
   UVs[0] = glm::vec2(BlockDataManager::tileSizeX * tilePos.x + BlockDataManager::tileSizeX - BlockDataManager::textureOffset,
-                     BlockDataManager::tileSizeY * tilePos.y + BlockDataManager::textureOffset);
+                     1 - (BlockDataManager::tileSizeY * tilePos.y + BlockDataManager::textureOffset));
 
   UVs[1] = glm::vec2(BlockDataManager::tileSizeX * tilePos.x + BlockDataManager::tileSizeX - BlockDataManager::textureOffset,
-                     BlockDataManager::tileSizeY * tilePos.y + BlockDataManager::tileSizeY - BlockDataManager::textureOffset);
+                     1 - (BlockDataManager::tileSizeY * tilePos.y + BlockDataManager::tileSizeY - BlockDataManager::textureOffset));
 
   UVs[2] = glm::vec2(BlockDataManager::tileSizeX * tilePos.x + BlockDataManager::textureOffset,
-                     BlockDataManager::tileSizeY * tilePos.y + BlockDataManager::tileSizeY - BlockDataManager::textureOffset);
+                     1 - (BlockDataManager::tileSizeY * tilePos.y + BlockDataManager::tileSizeY - BlockDataManager::textureOffset));
 
   UVs[3] = glm::vec2(BlockDataManager::tileSizeX * tilePos.x + BlockDataManager::textureOffset,
-                     BlockDataManager::tileSizeY * tilePos.y + BlockDataManager::textureOffset);
+                     1 - (BlockDataManager::tileSizeY * tilePos.y + BlockDataManager::textureOffset));
 
   return UVs;
 }
@@ -137,6 +137,7 @@ glm::ivec3 BlockHelper::getVector(Direction direction)
 
 glm::ivec2 BlockHelper::TexturePosition(Direction direction, BlockType blockType)
 {
+
   switch (direction)
   {
   case Direction::up:
