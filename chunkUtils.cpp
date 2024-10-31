@@ -61,11 +61,12 @@ void setBlock(ChunkData *chunkData, const glm::ivec3 &localPosition, BlockType b
   if (inRange(chunkData, localPosition.x) && inRangeHeight(chunkData, localPosition.y) && inRange(chunkData, localPosition.z))
   {
     int index = getIndexFromPosition(chunkData, localPosition.x, localPosition.y, localPosition.z);
-    chunkData->blocks[index] = block;
+    if (chunkData->blocks[index] == BlockType::Nothing)
+      chunkData->blocks[index] = block;
   }
   else
   {
-    throw std::runtime_error("Need to ask World for appropriate chunk");
+    std::cerr << ("Need to ask World for appropriate chunk") << std::endl;
   }
 }
 

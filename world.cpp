@@ -7,6 +7,7 @@
 #include <glm/gtc/noise.hpp>
 #include <cmath>
 #include <chrono>
+#include <random>
 
 World::World() {}
 
@@ -20,7 +21,7 @@ void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *
   BlockDataSO textureDataSource(0.1, 0.1);
 
   TextureData grassTexture;
-  grassTexture.up = glm::vec2(6, 8);
+  grassTexture.up = glm::vec2(8, 9);
   grassTexture.down = glm::vec2(7, 4);
   grassTexture.side = glm::vec2(7, 5);
   grassTexture.blockType = BlockType::Grass_Dirt;
@@ -36,9 +37,38 @@ void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *
   waterTexture.down = glm::vec2(0, 3);
   waterTexture.side = glm::vec2(0, 3);
   waterTexture.blockType = BlockType::Water;
+
+  TextureData sandTexture;
+  sandTexture.up = glm::vec2(3, 3);
+  sandTexture.down = glm::vec2(3, 3);
+  sandTexture.side = glm::vec2(3, 3);
+  sandTexture.blockType = BlockType::Sand;
+
+  TextureData stoneTexture;
+  stoneTexture.up = glm::vec2(3, 5);
+  stoneTexture.down = glm::vec2(3, 5);
+  stoneTexture.side = glm::vec2(3, 5);
+  stoneTexture.blockType = BlockType::Stone;
+
+  TextureData treeTrunkTexture;
+  treeTrunkTexture.up = glm::vec2(0, 0);
+  treeTrunkTexture.down = glm::vec2(0, 0);
+  treeTrunkTexture.side = glm::vec2(1, 9);
+  treeTrunkTexture.blockType = BlockType::TreeTrunk;
+
+  TextureData treeLeafesSolidTexture;
+  treeLeafesSolidTexture.up = glm::vec2(5, 8);
+  treeLeafesSolidTexture.down = glm::vec2(5, 8);
+  treeLeafesSolidTexture.side = glm::vec2(5, 8);
+  treeLeafesSolidTexture.blockType = BlockType::TreeLeafesSolid;
+
   textureDataSource.textureDataList.push_back(grassTexture);
   textureDataSource.textureDataList.push_back(dirtTexture);
   textureDataSource.textureDataList.push_back(waterTexture);
+  textureDataSource.textureDataList.push_back(sandTexture);
+  textureDataSource.textureDataList.push_back(stoneTexture);
+  textureDataSource.textureDataList.push_back(treeTrunkTexture);
+  textureDataSource.textureDataList.push_back(treeLeafesSolidTexture);
 
   BlockDataManager blockManager(&textureDataSource);
 
@@ -53,10 +83,9 @@ void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *
       chunkDataDictionary.emplace(std::make_pair(glm::ivec3(data->worldPosition), *data));
     }
   }
-
+  int count = 0;
   for (auto &entry : chunkDataDictionary)
   {
-    auto start = std::chrono::high_resolution_clock::now();
     ChunkData *data = &entry.second;
 
     ChunkRenderer chunkRenderer(data);
@@ -66,37 +95,138 @@ void World::generateWorld(std::vector<Vertex> *vertices, std::vector<uint32_t> *
 
     chunkRenderer.updateChunk(&meshData, vertices, indices);
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = end - start;
-    std::cout << "Time taken for operations: " << elapsed.count() << " seconds." << std::endl;
+    count++;
+    std::cout << "Count: " << count << std::endl;
   }
 }
 
 void World::generateVoxels(ChunkData *data)
 {
-  for (int x = 0; x < data->chunkSize; x++)
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> distribution(1, 2);
+  std::mt19937 treeGen(rd());
+  std::uniform_real_distribution<float> treeDistribution(0.0f, 1.0f);
+
+  int chunkSize = data->chunkSize;
+
+  for (int x = 0; x < chunkSize; x++)
   {
-    for (int z = 0; z < data->chunkSize; z++)
+    for (int z = 0; z < chunkSize; z++)
     {
       float noiseValue = glm::perlin(glm::vec2((data->worldPosition.x + x) * noiseScale, (data->worldPosition.z + z) * noiseScale)) + 1;
       int groundPosition = static_cast<int>(std::round(noiseValue * (chunkHeight / 2)));
+
+      float treeDensity = (glm::perlin(glm::vec2((data->worldPosition.x + x) * treeNoiseScale, (data->worldPosition.z + z) * treeNoiseScale)) + 1) / 16;
+      float randomTreeValue = treeDistribution(treeGen);
+      bool shouldPlaceTree = randomTreeValue < treeDensity;
+
       for (int y = 0; y < chunkHeight; y++)
       {
-        BlockType voxelType = BlockType::Dirt;
+        BlockType voxelType;
+
         if (y > groundPosition)
         {
+
           if (y < waterThreshold)
           {
             voxelType = BlockType::Water;
+          }
+          else if (y == groundPosition + 1 && shouldPlaceTree)
+          {
+            voxelType = BlockType::TreeTrunk;
+            setBlock(data, glm::ivec3(x, y + 1, z), voxelType);
+            setBlock(data, glm::ivec3(x, y + 2, z), voxelType);
+            setBlock(data, glm::ivec3(x, y + 3, z), voxelType);
+            setBlock(data, glm::ivec3(x, y + 4, z), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 4, z), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 4, z), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 4, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 4, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 4, z - 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 4, z - 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x, y + 4, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x, y + 4, z - 1), BlockType::TreeLeafesSolid);
+
+            setBlock(data, glm::ivec3(x + 1, y + 3, z), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 3, z), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 3, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 3, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 3, z - 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 3, z - 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x, y + 3, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x, y + 3, z - 1), BlockType::TreeLeafesSolid);
+
+            setBlock(data, glm::ivec3(x + 2, y + 3, z), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 2, y + 3, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 2, y + 3, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 2, y + 3, z - 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 2, y + 3, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 3, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 3, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x, y + 3, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x, y + 3, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 3, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 3, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 3, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 3, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 3, z - 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 3, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 3, z), BlockType::TreeLeafesSolid);
+
+            setBlock(data, glm::ivec3(x + 2, y + 2, z), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 2, y + 2, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 2, y + 2, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 2, y + 2, z - 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 2, y + 2, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 2, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x + 1, y + 2, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x, y + 2, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x, y + 2, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 2, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 1, y + 2, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 2, z - 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 2, z + 2), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 2, z - 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 2, z + 1), BlockType::TreeLeafesSolid);
+            setBlock(data, glm::ivec3(x - 2, y + 2, z), BlockType::TreeLeafesSolid);
           }
           else
           {
             voxelType = BlockType::Air;
           }
         }
-        else if (y == groundPosition)
+        else
         {
-          voxelType = BlockType::Grass_Dirt;
+          int randomNum = distribution(gen);
+
+          if (y == groundPosition)
+          {
+
+            if (y < waterThreshold)
+            {
+              voxelType = BlockType::Sand;
+            }
+            else
+            {
+              voxelType = BlockType::Grass_Dirt;
+            }
+          }
+          else
+          {
+            if (y < waterThreshold)
+            {
+              voxelType = BlockType::Sand;
+            }
+            else if (y < groundPosition - 7)
+            {
+              voxelType = BlockType::Stone;
+            }
+            else
+            {
+              voxelType = BlockType::Dirt;
+            }
+          }
         }
 
         setBlock(data, glm::ivec3(x, y, z), voxelType);
